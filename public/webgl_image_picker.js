@@ -297,7 +297,7 @@
       try {
         // Dù là gallery, vẫn xin permission camera
         // để tránh browser edge-case
-        await ensureCameraPermission();
+        //await ensureCameraPermission();
 
         openFileInput(false);
       } catch (e) {
