@@ -34,46 +34,46 @@
   }
 
   // ----- Ensure UI (simple) -----
-  function ensureUI() {
-    if (!qsel("webgl-image-picker-container")) {
-      const cont = mk("div", { id: "webgl-image-picker-container" }, document.body);
-      cont.style.display = "none";
-      const style = document.createElement("style");
-      style.innerHTML = `
-        #webgl-image-picker-container {
-          position: fixed;
-          left: 12px;
-          bottom: 12px;
-          z-index: 999999;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          pointer-events: auto;
-        }
-        #webgl-image-picker-container button {
-          padding: 8px 12px;
-          font-size: 14px;
-          background: rgba(0,0,0,0.65);
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          backdrop-filter: blur(6px);
-        }
-        #webgl-image-picker-container button:hover { opacity: 0.95; }
-      `;
-      document.head.appendChild(style);
+  // function ensureUI() {
+  //   if (!qsel("webgl-image-picker-container")) {
+  //     const cont = mk("div", { id: "webgl-image-picker-container" }, document.body);
+  //     cont.style.display = "none";
+  //     const style = document.createElement("style");
+  //     style.innerHTML = `
+  //       #webgl-image-picker-container {
+  //         position: fixed;
+  //         left: 12px;
+  //         bottom: 12px;
+  //         z-index: 999999;
+  //         display: flex;
+  //         flex-direction: column;
+  //         gap: 8px;
+  //         pointer-events: auto;
+  //       }
+  //       #webgl-image-picker-container button {
+  //         padding: 8px 12px;
+  //         font-size: 14px;
+  //         background: rgba(0,0,0,0.65);
+  //         color: #fff;
+  //         border: none;
+  //         border-radius: 8px;
+  //         cursor: pointer;
+  //         backdrop-filter: blur(6px);
+  //       }
+  //       #webgl-image-picker-container button:hover { opacity: 0.95; }
+  //     `;
+  //     document.head.appendChild(style);
 
-      mk("button", { id: "webgl-open-gallery-btn", html: "📁 Chọn ảnh" }, cont);
-      mk("button", { id: "webgl-open-camera-btn", html: "📷 Mở camera" }, cont);
+  //     mk("button", { id: "webgl-open-gallery-btn", html: "📁 Chọn ảnh" }, cont);
+  //     mk("button", { id: "webgl-open-camera-btn", html: "📷 Mở camera" }, cont);
 
-      // Hidden input used for gallery (no capture attribute: opens gallery/folder)
-      const hidden = mk("input", { id: "webgl-hidden-file-input", type: "file", accept: "image/*", style: "display:none" }, document.body);
-      // ensure single-file only
-      hidden.multiple = false;
-      hidden.removeAttribute('multiple');
-    }
-  }
+  //     // Hidden input used for gallery (no capture attribute: opens gallery/folder)
+  //     const hidden = mk("input", { id: "webgl-hidden-file-input", type: "file", accept: "image/*", style: "display:none" }, document.body);
+  //     // ensure single-file only
+  //     hidden.multiple = false;
+  //     hidden.removeAttribute('multiple');
+  //   }
+  // }
 
   // ----- Unity send helpers -----
   function sendChunkToUnity(chunk) {
@@ -165,98 +165,86 @@
 
   async function sendFileToUnity(file) {
     try {
-      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-      if (file.size > MAX_FILE_SIZE) {
-        alert(`Image size exceeds ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(2)}MB. Please select a smaller file.`);
-        return;
-      }
-
-      const ALLOWED_TYPES = ["image/jpeg", "image/png"];
-
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        alert("Unsupported image format. Only JPEG and PNG are accepted.");
-        return;
-      }
       const dataUrl = await resizeFileToDataUrl(file);
       const base64 = stripDataUrlPrefix(dataUrl);
       await sendBase64ToUnity(base64);
     } catch (e) {
       if (e && e.message === "MIN_DIMENSION") {
-        alert(`Image is too small. Please select an image at least ${MIN_SIZE}px.`);
+        alert(`Ảnh quá nhỏ: kích thước thực tế ${e.width}x${e.height}px. Vui lòng chọn ảnh có chiều rộng và chiều cao tối thiểu ${MIN_SIZE}px.`);
         return;
       }
       console.error("sendFileToUnity error:", e);
-      alert("Cannot process image. Check console for details.");
+      alert("Không thể xử lý ảnh. Kiểm tra console.");
     }
   }
 
   // ----- Gallery handling (picker) -----
-  function setupGalleryHandlers() {
-    const galleryBtn = qsel("webgl-open-gallery-btn");
-    const hiddenInput = qsel("webgl-hidden-file-input");
-    if (!galleryBtn || !hiddenInput) return;
+  // function setupGalleryHandlers() {
+  //   const galleryBtn = qsel("webgl-open-gallery-btn");
+  //   const hiddenInput = qsel("webgl-hidden-file-input");
+  //   if (!galleryBtn || !hiddenInput) return;
 
-    // ensure single-file only
-    hiddenInput.multiple = false;
-    hiddenInput.removeAttribute('multiple');
+  //   // ensure single-file only
+  //   hiddenInput.multiple = false;
+  //   hiddenInput.removeAttribute('multiple');
 
-    galleryBtn.addEventListener("click", () => {
-      // reset value and open file picker
-      hiddenInput.value = "";
-      hiddenInput.click();
-    });
+  //   galleryBtn.addEventListener("click", () => {
+  //     // reset value and open file picker
+  //     hiddenInput.value = "";
+  //     hiddenInput.click();
+  //   });
 
-    hiddenInput.addEventListener("change", (ev) => {
-      // Only take the first file even if browser allowed multiple
-      const f = ev.target.files && ev.target.files[0];
-      if (f) sendFileToUnity(f);
-      ev.target.value = "";
-    });
-  }
+  //   hiddenInput.addEventListener("change", (ev) => {
+  //     // Only take the first file even if browser allowed multiple
+  //     const f = ev.target.files && ev.target.files[0];
+  //     if (f) sendFileToUnity(f);
+  //     ev.target.value = "";
+  //   });
+  // }
 
   // ----- Camera handling (open native camera app directly) -----
-  function setupCameraHandler() {
-    const cameraBtn = qsel("webgl-open-camera-btn");
-    if (!cameraBtn) return;
+  // function setupCameraHandler() {
+  //   const cameraBtn = qsel("webgl-open-camera-btn");
+  //   if (!cameraBtn) return;
 
-    cameraBtn.addEventListener("click", async () => {
-      try {
-        // create temporary input that requests capture from device camera
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-        // hint to open rear camera; some browsers/platforms respect it
-        input.setAttribute("capture", "environment");
-        // ensure single-file only
-        input.multiple = false;
-        input.removeAttribute('multiple');
-        input.style.display = "none";
-        document.body.appendChild(input);
+  //   cameraBtn.addEventListener("click", async () => {
+  //     try {
+  //       // create temporary input that requests capture from device camera
+  //       const input = document.createElement("input");
+  //       input.type = "file";
+  //       input.accept = "image/*";
+  //       // hint to open rear camera; some browsers/platforms respect it
+  //       input.setAttribute("capture", "environment");
+  //       // ensure single-file only
+  //       input.multiple = false;
+  //       input.removeAttribute('multiple');
+  //       input.style.display = "none";
+  //       document.body.appendChild(input);
 
-        input.addEventListener("change", async (ev) => {
-          // Only take the first file
-          const f = ev.target.files && ev.target.files[0];
-          if (f) {
-            await sendFileToUnity(f);
-          }
-          // cleanup
-          if (input.parentNode) input.parentNode.removeChild(input);
-        }, { once: true });
+  //       input.addEventListener("change", async (ev) => {
+  //         // Only take the first file
+  //         const f = ev.target.files && ev.target.files[0];
+  //         if (f) {
+  //           await sendFileToUnity(f);
+  //         }
+  //         // cleanup
+  //         if (input.parentNode) input.parentNode.removeChild(input);
+  //       }, { once: true });
 
-        // Trigger native camera / photo app
-        input.click();
-      } catch (e) {
-        console.error("Failed to open native camera:", e);
-        alert("Camera permission is required to scan the vehicle. Please allow camera access and try again.");
-      }
-    });
-  }
+  //       // Trigger native camera / photo app
+  //       input.click();
+  //     } catch (e) {
+  //       console.error("Failed to open native camera:", e);
+  //       alert("Không thể mở camera gốc. Hãy kiểm tra quyền truy cập hoặc trình duyệt.");
+  //     }
+  //   });
+  // }
 
   // ----- Initialization -----
   function init() {
-    ensureUI();
-    setupGalleryHandlers();
-    setupCameraHandler();
+    //ensureUI();
+    // setupGalleryHandlers();
+    // setupCameraHandler();
 
     // Expose helpers for debugging or manual calls
     window.WebGLImagePicker = {
@@ -267,24 +255,69 @@
     console.log(`WebGL Image Picker (minimal, no preview) initialized. MIN_SIZE=${MIN_SIZE}px`);
   }
 
-  // Public API for Unity
-  // Application.ExternalEval("window.WebGLImagePicker_OpenGallery()");
-  window.WebGLImagePicker_OpenGallery = function () {
-    const input = document.getElementById("webgl-hidden-file-input");
-    if (input) {
-      input.value = "";
-      input.click();
-    }
-  };
+  (function () {
 
-  // Application.ExternalEval("window.WebGLImagePicker_OpenCamera()");
-  window.WebGLImagePicker_OpenCamera = function () {
-    try {
+    let cameraPermissionChecked = false;
+
+    async function ensureCameraPermission() {
+      if (cameraPermissionChecked) return true;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach(t => t.stop());
+        cameraPermissionChecked = true;
+        return true;
+      } catch (e) {
+        console.warn("Camera permission denied", e);
+        return false;
+      }
+    }
+
+    // =========================
+    // Open Native Camera
+    // =========================
+    window.WebGLImagePicker_OpenCamera = async function () {
+      try {
+        const ok = await ensureCameraPermission();
+        if (!ok) {
+          notifyPermissionDenied();
+          return;
+        }
+
+        openFileInput(true);
+      } catch (e) {
+        console.error("OpenCamera failed:", e);
+      }
+    };
+
+    // =========================
+    // Open Gallery
+    // =========================
+    window.WebGLImagePicker_OpenGallery = async function () {
+      try {
+        // Dù là gallery, vẫn xin permission camera
+        // để tránh browser edge-case
+        await ensureCameraPermission();
+
+        openFileInput(false);
+      } catch (e) {
+        console.error("OpenGallery failed:", e);
+      }
+    };
+
+    // =========================
+    // Shared input handler
+    // =========================
+    function openFileInput(useCamera) {
       const inp = document.createElement("input");
       inp.type = "file";
       inp.accept = "image/*";
-      inp.setAttribute("capture", "environment");
       inp.multiple = false;
+
+      if (useCamera) {
+        inp.setAttribute("capture", "environment");
+      }
+
       inp.style.display = "none";
       document.body.appendChild(inp);
 
@@ -292,15 +325,23 @@
         const f = ev.target.files && ev.target.files[0];
         if (f) await sendFileToUnity(f);
 
-        if (inp.parentNode) inp.parentNode.removeChild(inp);
+        inp.remove();
       }, { once: true });
 
       inp.click();
     }
-    catch (e) {
-      console.error("WebGLImagePicker_OpenCamera failed:", e);
+
+    function notifyPermissionDenied() {
+      if (typeof UnitySendMessage === "function") {
+        UnitySendMessage(
+          "ImageReceiver",
+          "OnCameraPermissionDenied",
+          ""
+        );
+      }
     }
-  };
+
+  })();
 
   // using System.Runtime.InteropServices;
 
